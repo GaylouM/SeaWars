@@ -4,14 +4,14 @@ Sea Wars verion 1.0 25/08/2016
 
 Sea Wars is an extended version of the original two players game Battleship.
 
-- First player create a game in createTwoplayersGame endpoint
-- Second Player get the webSafeGameKey in getGamesCreated endpoint
-- Second Player register with the webSafeGameKey in registerForGame endpoint,
+1. First player create a game in createTwoplayersGame endpoint
+2. Second Player get the webSafeGameKey in getGamesCreated endpoint
+3. Second Player register with the webSafeGameKey in registerForGame endpoint,
 an active player is randomly picked
-- The active player must guess a row and column on the board to find a boat in
+4. The active player must guess a row and column on the board to find a boat in
 guess endpoint
-- If a boat is hit the player continue else active player changes.
-- The game continues until one of the two players get rid of all the adversary ship
+5. If a boat is hit the player continue else active player changes.
+6. The game continues until one of the two players get rid of all the adversary ship
 
 ## DETAILED DESCRIPTION
 
@@ -47,13 +47,13 @@ to shorten the setting step. The board won't be generated anymore but just got i
 
 First you need to fork the API and clone it locally
 
-- Open Google App Engine Launcher
-- Go in File --> Add existing application...
-- Browse the Sea Wars folder
-- Choose Port: 8080, Admin Port: 8000 and click Add
-- Create then a shortcut with this target
-C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --user-data-dir=test --unsafely-treat-insecure-origin-as-secure=http://localhost:8080 - automatic!
+1. Open Google App Engine Launcher
+2. Go in File --> Add existing application...
+3. Browse the Sea Wars folder
+4. Choose Port: 8080, Admin Port: 8000 and click Add
+5. Create then a shortcut with this target
+C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" --user-data-dir=test --unsafely-treat-insecure-origin-as-secure=http://localhost:8080
 (Change the first part if it's necessary)
-- Execute the shortcut as administrator and browse this url:
-http://localhost:8080/_ah/api/explorer to start using the api - automatic!
-- To use it on internet just deploy it in google app engine Launcher
+6. Execute the shortcut as administrator and browse this url:
+http://localhost:8080/_ah/api/explorer to start using the api
+7. To use it on internet just deploy it in google app engine Launcher
