@@ -1,7 +1,6 @@
 Sea Wars verion 1.0 25/08/2016
 
-HOW TO PLAY
---------------------
+# HOW TO PLAY
 
 Sea Wars is an extended version of the original two players game Battleship.
 
