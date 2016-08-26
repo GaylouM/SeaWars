@@ -17,7 +17,7 @@ guess endpoint
 DETAILED DESCRIPTION
 --------------------
 
-What does Sea wars so different ?
+What does Sea Wars different from Battleship ?
 
 - The first player decide the size of the board and the set of boats for the two players
 Exemple: 10 for the board size will define a standard square board of 10x10,
