@@ -5,13 +5,8 @@ from google.appengine.api import app_identity
 from google.appengine.api import mail
 
 """
-main.py -- Udacity conference server-side Python App Engine
+main.py -- Seawars server-side Python App Engine
     HTTP controller handlers for memcache & task queue access
-
-$Id$
-
-created by wesc on 2014 may 24
-
 """
 
 __author__ = 'gaylord.marville@gmail.com (Gaylord Marville)'

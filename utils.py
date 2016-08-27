@@ -1,15 +1,21 @@
+#!/usr/bin/env python
+
+"""
+utils.py - This file contains the definition of
+the function essential for the good work of the API.
+"""
+
 import json
 import os
 import time
 import uuid
 
 from random import randint, shuffle
-from collections import deque
 from copy import deepcopy
 
 from google.appengine.api import urlfetch
-from models import Profile
-from models import Board
+
+from game_model import Game
 
 
 def getUserId(user, id_type="email"):
@@ -44,7 +50,7 @@ def getUserId(user, id_type="email"):
         # implement your own user_id creation and getting algorythm
         # this is just a sample that queries datastore for an existing profile
         # and generates an id if profile does not exist for an email
-        profile = Conference.query(Conference.mainEmail == user.email())
+        profile = Game.query(Game.mainEmail == user.email())
         if profile:
             return profile.id()
         else:
@@ -72,7 +78,7 @@ def shipsCoordinates(board_setup, board_size=10):
 
     def test(liste, z):
         if sum([1 for piece in liste[-z:] if piece[0] ==
-           liste[-z][0] or piece[1] == liste[-z][1]]) < z:
+                liste[-z][0] or piece[1] == liste[-z][1]]) < z:
             return True
         else:
             return False
@@ -85,13 +91,29 @@ def shipsCoordinates(board_setup, board_size=10):
                     boardI[x][y] = "1"
                     ship.append([x, y])
                     posShip(
-                        x+rand_dir[0][0], y+rand_dir[0][1], ship, z, boardI)
+                        x + rand_dir[0][0],
+                        y + rand_dir[0][1],
+                        ship,
+                        z,
+                        boardI)
                     posShip(
-                        x+rand_dir[1][0], y+rand_dir[1][1], ship, z, boardI)
+                        x + rand_dir[1][0],
+                        y + rand_dir[1][1],
+                        ship,
+                        z,
+                        boardI)
                     posShip(
-                        x+rand_dir[2][0], y+rand_dir[2][1], ship, z, boardI)
+                        x + rand_dir[2][0],
+                        y + rand_dir[2][1],
+                        ship,
+                        z,
+                        boardI)
                     posShip(
-                        x+rand_dir[3][0], y+rand_dir[3][1], ship, z, boardI)
+                        x + rand_dir[3][0],
+                        y + rand_dir[3][1],
+                        ship,
+                        z,
+                        boardI)
                 else:
                     return ship[-z:]
             else:
@@ -115,7 +137,7 @@ def shipsCoordinates(board_setup, board_size=10):
         while ship is False:
             ship_row = random_row(board)
             ship_col = random_col(board)
-            ship2 = [(-nombre-10, -nombre-10) for nombre in range(z)]
+            ship2 = [(-nombre - 10, -nombre - 10) for nombre in range(z)]
             boardI = deepcopy(board)
 
             ship = posShip(ship_row, ship_col, ship2, z, boardI)

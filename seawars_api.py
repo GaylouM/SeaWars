@@ -1,49 +1,61 @@
 #!/usr/bin/env python
 
-import endpoints
-
-from protorpc import messages
-from protorpc import message_types
-from protorpc import remote
-
-from google.appengine.ext import ndb
-from google.appengine.api import taskqueue
-
-from models import ConflictException
-from models import Profile
-from models import ProfileMiniForm
-from models import ProfileForm
-from models import BooleanMessage
-from models import Game
-from models import GameForm
-from models import GameForms
-from models import Guess
-from models import AttemptEval
-from models import ShipNPlayer
-from models import Board
-from models import BoardForm
-from models import History
-from models import RankingForm
-from models import RankingForms
-
-from random import randint, shuffle, choice
-
-from operator import truediv
-
-from collections import deque
-
-from copy import deepcopy
-
-from settings import WEB_CLIENT_ID
-
-from utils import getUserId
-from utils import shipsCoordinates
-
 """
 seawars_api.py - This file contains the class definitions for the Datastore
 entities used by the Game. Because these classes are also regular Python
 classes they can include methods (such as 'to_form' and 'new_game').
 """
+
+import endpoints
+
+from google.appengine.ext import ndb
+from google.appengine.api import taskqueue
+
+from exceptions_model import ConflictException
+
+from boolean_model import BooleanMessage
+
+from random import choice
+
+from operator import truediv
+
+from settings import WEB_CLIENT_ID
+
+from protorpc import (
+    messages,
+    message_types,
+    remote,
+)
+
+from user_model import (
+    Profile,
+    ProfileMiniForm,
+    ProfileForm,
+)
+
+from game_model import (
+    Game,
+    GameForm,
+    GameForms,
+    Ship,
+    BoardForm,
+)
+
+from guess_model import (
+    Guess,
+    GuessEval,
+)
+
+from ranking_model import (
+    RankingForm,
+    RankingForms,
+)
+
+from utils import (
+    getUserId,
+    shipsCoordinates
+)
+
 
 __author__ = 'gaylord.marville@gmail.com (Gaylord Marville)'
 
@@ -244,7 +256,7 @@ class SeaWars(remote.Service):
         g_id = Game.allocate_ids(size=1, parent=p_key)[0]
         g_key = ndb.Key(Game, g_id, parent=p_key)
 
-        setattr(gf, 'organizerUserId', user_id)
+        setattr(gf, 'creatorUserId', user_id)
         setattr(prof, 'numberOfGame', getattr(prof, 'numberOfGame') + 1)
         prof.gameKeysToPlay.append(g_key.urlsafe())
         prof.put()
@@ -252,12 +264,12 @@ class SeaWars(remote.Service):
         game = Game(
             key=g_key,
             gameState="Waiting for second player",
-            firstPlayer=ShipNPlayer(
+            firstPlayer=Ship(
                 playerId=user_id,
                 shipsCoordinates=shipsCoordinates(board_setup, board_size),
                 scoreHistory=[0],
                 shipState=[0 for _ in range(len(board_setup))]),
-            secondPlayer=ShipNPlayer(
+            secondPlayer=Ship(
                 shipState=[0 for _ in range(len(board_setup))]),
             numberOfPlayers=1,
             boardSize=board_size,
@@ -366,9 +378,7 @@ class SeaWars(remote.Service):
     def _guess(self, game, prof, board_setup, save_request):
         """Get the player attempt and evaluate it"""
         # preload necessary data items
-        ae = AttemptEval()
-
-        user = endpoints.get_current_user()
+        ge = GuessEval()
 
         ship_set_cut = [0]
 
@@ -380,13 +390,13 @@ class SeaWars(remote.Service):
         # take the form of a two-dimensional list
         if game.activePlayerId == game.firstPlayer.playerId:
             ships = game.secondPlayer.shipsCoordinates
-            rcstrd_coord = [[ships[i], ships[i+1]]
+            rcstrd_coord = [[ships[i], ships[i + 1]]
                             for i in range(len(ships)) if i % 2 == 0]
             rcstrd_history = zip(
                 game.firstPlayer.rowHistory, game.firstPlayer.columnHistory)
         else:
             ships = game.firstPlayer.shipsCoordinates
-            rcstrd_coord = [[ships[i], ships[i+1]]
+            rcstrd_coord = [[ships[i], ships[i + 1]]
                             for i in range(len(ships)) if i % 2 == 0]
             rcstrd_history = zip(
                 game.secondPlayer.rowHistory, game.secondPlayer.columnHistory)
@@ -402,7 +412,7 @@ class SeaWars(remote.Service):
             # return [0], [1], [2], [3] or [4]
             rslt = [x for x in range(len(board_setup))
                     if attempt in rcstrd_coord[
-                        ship_set_cut[x]:ship_set_cut[x+1]]]
+                        ship_set_cut[x]:ship_set_cut[x + 1]]]
 
             if getattr(game, 'activePlayerId') == \
                getattr(game.firstPlayer, 'playerId'):
@@ -434,7 +444,7 @@ class SeaWars(remote.Service):
                             game.gameState = "Completed"
                             prof.numberOfWonGames += 1
                             setattr(
-                                ae, 'attemptEval', "The %s was hit and sunk, "
+                                ge, 'guessEval', "The %s was hit and sunk, "
                                 "you've won the game !" % class_ship)
                             game.firstPlayer.stateOfGuessHistory[-1] = (
                                 "The %s was hit and sunk, you've "
@@ -448,16 +458,16 @@ class SeaWars(remote.Service):
                                 map(truediv, numberOfGuess,
                                     numberOfShipBox)) / len(numberOfGuess)
                             prof.ranking = int(
-                                (prof.numberOfWonGames*0.9 /
-                                 prof.numberOfGame)*1000 /
-                                ((div*0.1 + 0.8) if 1 <= div <= 3 else 1.1))
+                                (prof.numberOfWonGames * 0.9 /
+                                 prof.numberOfGame) * 1000 /
+                                ((div * 0.1 + 0.8) if 1 <= div <= 3 else 1.1))
                         # process if a boat is hit and sunk and its not the
                         # last of the adversary's board
                         else:
                             game.firstPlayer.stateOfGuessHistory.append(
                                 "The %s was hit and sunk" % class_ship)
                             setattr(
-                                ae, 'attemptEval', "The %s was hit and sunk"
+                                ge, 'guessEval', "The %s was hit and sunk"
                                 % class_ship)
                     # process if a boat is hit without being sunk
                     else:
@@ -467,14 +477,14 @@ class SeaWars(remote.Service):
                             "The %s was hit" % class_ship)
                         game.firstPlayer.scoreHistory.append(
                             game.firstPlayer.scoreHistory[-1] + 1)
-                        setattr(ae, 'attemptEval', "The %s was hit" %
+                        setattr(ge, 'guessEval', "The %s was hit" %
                                 class_ship)
                 # process if the boats are missed
                 else:
                     game.firstPlayer.rowHistory.append(attempt[0])
                     game.firstPlayer.columnHistory.append(attempt[1])
                     game.firstPlayer.stateOfGuessHistory.append("Missed")
-                    setattr(ae, 'attemptEval', "Missed")
+                    setattr(ge, 'guessEval', "Missed")
                     # send a mail to the other player to acknowledge him to
                     # play
                     taskqueue.add(params={'email': game.secondPlayer.playerId,
@@ -500,7 +510,7 @@ class SeaWars(remote.Service):
                             game.gameState = "Completed"
                             prof.numberOfWonGames += 1
                             setattr(
-                                ae, 'attemptEval', "The %s was hit and sunk,"
+                                ge, 'guessEval', "The %s was hit and sunk,"
                                 "you've won the game !" % class_ship)
                             game.secondPlayer.stateOfGuessHistory[-1] = (
                                 "The %s was hit and sunk, "
@@ -514,14 +524,14 @@ class SeaWars(remote.Service):
                                 map(truediv, numberOfGuess, numberOfShipBox)) /
                                 len(numberOfGuess))
                             prof.ranking = int(
-                                (prof.numberOfWonGames*0.9 /
-                                 prof.numberOfGame)*1000 /
-                                ((div*0.1 + 0.8) if 1 <= div <= 3 else 1.1))
+                                (prof.numberOfWonGames * 0.9 /
+                                 prof.numberOfGame) * 1000 /
+                                ((div * 0.1 + 0.8) if 1 <= div <= 3 else 1.1))
                         else:
                             game.secondPlayer.stateOfGuessHistory.append(
                                 "The %s was hit and sunk" % class_ship)
                             setattr(
-                                ae, 'attemptEval', "The %s was hit and sunk"
+                                ge, 'guessEval', "The %s was hit and sunk"
                                 % class_ship)
                     else:
                         game.secondPlayer.rowHistory.append(attempt[0])
@@ -530,16 +540,16 @@ class SeaWars(remote.Service):
                             "The %s was hit" % class_ship)
                         game.secondPlayer.scoreHistory.append(
                             game.secondPlayer.scoreHistory[-1] + 1)
-                        setattr(ae, 'attemptEval', "The %s was hit" %
+                        setattr(ge, 'guessEval', "The %s was hit" %
                                 class_ship)
                 else:
                     game.secondPlayer.rowHistory.append(attempt[0])
                     game.secondPlayer.columnHistory.append(attempt[1])
                     game.secondPlayer.stateOfGuessHistory.append("Missed")
-                    setattr(ae, 'attemptEval', "Missed")
+                    setattr(ge, 'guessEval', "Missed")
                     taskqueue.add(params={
-                                    'email': game.firstPlayer.playerId,
-                                    'player': game.secondPlayer.playerId},
+                                  'email': game.firstPlayer.playerId,
+                                  'player': game.secondPlayer.playerId},
                                   url='/tasks/send_reminder_email'
                                   )
                     self._switch(game)
@@ -552,7 +562,7 @@ class SeaWars(remote.Service):
         prof.put()
         game.put()
         # return attempt
-        return ae
+        return ge
 
     @endpoints.method(message_types.VoidMessage, ProfileForm,
                       path='profile', http_method='GET', name='getProfile')
@@ -595,11 +605,9 @@ class SeaWars(remote.Service):
         user = endpoints.get_current_user()
         if not user:
             raise endpoints.UnauthorizedException('Authorization required')
-        user_id = getUserId(user)
         # create ancestor query for all key matches for this user
         games = Game.query()
         games.fetch()
-        prof = ndb.Key(Profile, user_id).get()
         # return set of ConferenceForm objects per Conference
         return GameForms(
             items=[self._copyGameToForm(game, None) for game in games]
@@ -635,7 +643,6 @@ class SeaWars(remote.Service):
         user_id = getUserId(user)
         # create ancestor query for all key matches for this user
         games = Game.query(ancestor=ndb.Key(Profile, user_id))
-        prof = ndb.Key(Profile, user_id).get()
 
         # return set of GameForm objects per Game
         return GameForms(
@@ -664,7 +671,6 @@ class SeaWars(remote.Service):
         user = endpoints.get_current_user()
         if not user:
             raise endpoints.UnauthorizedException('Authorization required')
-        user_id = getUserId(user)
         # create ancestor query for all key matches for this user
         profs = Profile.query()
         profs.fetch()
@@ -672,7 +678,7 @@ class SeaWars(remote.Service):
             items=[self._copyRankingToForm(prof) for prof in profs]
         )
 
-    @endpoints.method(GAME_POST_REQUEST, AttemptEval,
+    @endpoints.method(GAME_POST_REQUEST, GuessEval,
                       path='game/{websafeGameKey}/guess',
                       http_method='POST', name='guess')
     def guess(self, request):
@@ -703,9 +709,9 @@ class SeaWars(remote.Service):
                 "It seems it's not your turn to play")
         # You must not guess out of the board
         if not 0 <= request.row < board_size \
-        and not 0 <= request.column < board_size:
+           and not 0 <= request.column < board_size:
             raise ConflictException(
-                "You have to guess between 0 and %d" % (board_size-1))
+                "You have to guess between 0 and %d" % (board_size - 1))
         if not game:
             raise endpoints.NotFoundException(
                 'No game found with key: %s' % request.websafeGameKey)
