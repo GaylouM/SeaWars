@@ -642,7 +642,7 @@ class SeaWars(remote.Service):
         )
 
     @endpoints.method(GAME_GET_REQUEST, GameForm,
-                      path='game/{websafeGameKey}',
+                      path='game/get/{websafeGameKey}',
                       http_method='GET', name='getGame')
     def getGame(self, request):
         """Return requested game (by websafeConferenceKey)."""
@@ -709,7 +709,7 @@ class SeaWars(remote.Service):
         )
 
     @endpoints.method(GAME_POST_REQUEST, GuessEval,
-                      path='game/{websafeGameKey}/guess',
+                      path='game/guess/{websafeGameKey}',
                       http_method='PUT', name='guess')
     def guess(self, request):
         """Return the guess result (by websafeConferenceKey)."""
@@ -750,7 +750,7 @@ class SeaWars(remote.Service):
         return self._guess(game, prof, board_setup, request)
 
     @endpoints.method(GAME_GET_REQUEST, RegisteringForm,
-                      path='game/{websafeGameKey}',
+                      path='game/register/{websafeGameKey}',
                       http_method='PUT', name='registerForGame')
     def registerForGame(self, request):
         """Register user for selected game."""
@@ -764,7 +764,7 @@ class SeaWars(remote.Service):
         return self._gameRegistration(request, board_size, board_setup)
 
     @endpoints.method(GAME_GET_REQUEST, RegisteringForm,
-                      path='game/{websafeGameKey}',
+                      path='game/cancel/{websafeGameKey}',
                       http_method='PUT', name='cancelGame')
     def cancelGame(self, request):
         """Cancel the selected game."""
