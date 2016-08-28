@@ -6,7 +6,7 @@ from google.appengine.api import mail
 
 """
 main.py -- Seawars server-side Python App Engine
-    HTTP controller handlers for memcache & task queue access
+HTTP controller handlers for memcache & task queue access
 """
 
 __author__ = 'gaylord.marville@gmail.com (Gaylord Marville)'
@@ -19,24 +19,22 @@ class SendConfirmationEmailHandler(webapp2.RequestHandler):
             'noreply@%s.appspotmail.com' % (
                 app_identity.get_application_id()),     # from
             self.request.get('email'),                  # to
-            'You created a new Game!',            # subj
+            'You created a new Game!',                  # subj
             'Hi, you have created a following '         # body
-            'conference:\r\n\r\n%s' % self.request.get(
-                'conferenceInfo')
+            'game:\r\n\r\n%s' % self.request.get(
+                'gameInfo')
         )
 
 
 class SendReminderEmailHandler(webapp2.RequestHandler):
-    def get(self):
+    def post(self):
         """Set Announcement in Memcache."""
         mail.send_mail(
             'noreply@%s.appspotmail.com' % (
-                app_identity.get_application_id()),     # from
-            self.request.get(
-                'email'),      # to
-            '%s has played' % self.request.get(
-                'player'),            # subj
-            'Hi, you can now reach the game, %s has made his move'
+                app_identity.get_application_id()),         # from
+            self.request.get('email'),                      # to
+            '%s has played' % self.request.get('player'),   # subj
+            "It's your turn now, %s has made his move"      # body
             % self.request.get('player')
         )
 

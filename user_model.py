@@ -6,7 +6,7 @@ class Profile(ndb.Model):
     """Profile -- User profile object"""
     displayName = ndb.StringProperty()
     mainEmail = ndb.StringProperty()
-    numberOfGame = ndb.IntegerProperty()
+    numberOfPlayedGames = ndb.IntegerProperty()
     numberOfWonGames = ndb.IntegerProperty()
     ranking = ndb.IntegerProperty()
     numberOfGuess = ndb.IntegerProperty(repeated=True)
@@ -17,8 +17,6 @@ class Profile(ndb.Model):
 class ProfileMiniForm(messages.Message):
     """ProfileMiniForm -- update Profile form message"""
     displayName = messages.StringField(1)
-    numberOfGame = messages.IntegerField(2)
-    numberOfWonGames = messages.IntegerField(3)
 
 
 class ProfileForm(messages.Message):
@@ -26,6 +24,6 @@ class ProfileForm(messages.Message):
     displayName = messages.StringField(1)
     mainEmail = messages.StringField(2)
     gameKeysToPlay = messages.StringField(3, repeated=True)
-    numberOfGame = messages.IntegerField(4)
+    numberOfPlayedGames = messages.IntegerField(4)
     numberOfWonGames = messages.IntegerField(5)
     ranking = messages.IntegerField(6)

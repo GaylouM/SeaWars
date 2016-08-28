@@ -10,3 +10,6 @@ class Guess(messages.Message):
 class GuessEval(messages.Message):
     """GuessEval -- evaluation form message"""
     guessEval = messages.StringField(1)
+    gameState = messages.StringField(2)
+    firstPlayerHistory = messages.StringField(3)
+    secondPlayerHistory = messages.StringField(4)

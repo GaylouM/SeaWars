@@ -1,0 +1,14 @@
+# GENERAL USAGE NOTES
+
+- For the process of random generation of board, I decided to define a recursive function.
+The function as I designed it work pretty much the same way than the flood fill algorithm
+with the difference that the flood fill stops when the condition are reached (straight size of the boat essentially).
+It does the job for a little amount of boat of short size (less than 25 box).
+Given that the first player should be reasonnable during the setting step.
+Indeed, I decided to not prevent the creation of a large amount of big boat,
+assuming it could eventually raise an Exception RuntimeError: 'maximum recursion depth exceeded'. So please be carefull.
+
+- In a future reflexion I'd like to implement a push queue in order to always have a set of board instantly available
+to shorten the setting step. The board won't be generated anymore but just got in the datastore.
+
+- If you decide to execute createTwoplayersGame endpoints without insert any board size or board setup, default values will be token.

@@ -1,6 +1,7 @@
 from protorpc import messages
 
 
-class BooleanMessage(messages.Message):
+class RegisteringForm(messages.Message):
     """BooleanMessage-- outbound Boolean value message"""
-    data = messages.BooleanField(1)
+    registeringStatus = messages.StringField(1)
+    activePlayerName = messages.StringField(2)

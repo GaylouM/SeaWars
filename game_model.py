@@ -5,6 +5,7 @@ from google.appengine.ext import ndb
 class Ship(ndb.Model):
     """Ship -- Ship object"""
     playerId = ndb.StringProperty()
+    displayName = ndb.StringProperty()
     shipsCoordinates = ndb.IntegerProperty(repeated=True)
     rowHistory = ndb.IntegerProperty(repeated=True)
     columnHistory = ndb.IntegerProperty(repeated=True)
@@ -16,6 +17,7 @@ class Ship(ndb.Model):
 class Game(ndb.Model):
     """Game -- Game object"""
     gameState = ndb.StringProperty()
+    creatorUserId = ndb.StringProperty()
     activePlayerId = ndb.StringProperty()
     firstPlayer = ndb.StructuredProperty(Ship)
     secondPlayer = ndb.StructuredProperty(Ship)
