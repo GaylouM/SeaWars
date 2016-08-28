@@ -210,7 +210,7 @@ http://localhost:8080/_ah/api/explorer to start using the API.
 
 ## ENDPOINTS
 
-seawars.getProfile : Return information about the current user
+* seawars.getProfile : Return information about the current user
 {
  "ranking": "",
  "displayName": "",
@@ -220,7 +220,7 @@ seawars.getProfile : Return information about the current user
  "numberOfGame": "",
 }
 
-seawars.getProfile : Change user display, commit it in the datastore and return updated informations about the current user
+* seawars.getProfile : Change user display, commit it in the datastore and return updated informations about the current user
 {
  "ranking": "",
  "displayName": "",
@@ -230,7 +230,7 @@ seawars.getProfile : Change user display, commit it in the datastore and return 
  "numberOfGame": "",
 }
 
-seawars.createTwoplayersGame : Takes as input a board setup and a board size and add a game instance to the datastore with a set of ship for the first player. If no input data are provided default data are taken.
+* seawars.createTwoplayersGame : Takes as input a board setup and a board size and add a game instance to the datastore with a set of ship for the first player. If no input data are provided default data are taken.
 {
  "boardSetup": [""],
  "boardSize": "",
@@ -239,7 +239,7 @@ seawars.createTwoplayersGame : Takes as input a board setup and a board size and
  "creatorUserId": "",
 }
 
-seawars.getGamesCreated : Takes no input and return a list of all the game created by the players. Usefull to register a game by getting the websafegamekey.
+* seawars.getGamesCreated : Takes no input and return a list of all the game created by the players. Usefull to register a game by getting the websafegamekey.
 {
  "items": [
   {
@@ -253,7 +253,7 @@ seawars.getGamesCreated : Takes no input and return a list of all the game creat
   ],
 }
 
-seawars.getGame : Takes as input a websafegamekey and return all the informations about a game.
+* seawars.getGame : Takes as input a websafegamekey and return all the informations about a game.
 {
  "boardSize": "",
  "creatorUserId": "",
@@ -264,7 +264,7 @@ seawars.getGame : Takes as input a websafegamekey and return all the information
  "boardSetup": [""],
 }
 
-seawars.getUserGames : Takes no input and return a list of all the game created by the current user.
+* seawars.getUserGames : Takes no input and return a list of all the game created by the current user.
 {
  "items": [
   {
@@ -278,7 +278,7 @@ seawars.getUserGames : Takes no input and return a list of all the game created 
  ],
 }
 
-seawars.getGameHistory : Takes as input a websafegamekey and return the history of the guess made by each player from the beginning of the game. firstPlayerC is a list of number designate one of the two coordinate needed to hit a ship (Column) and firstPlayerR designate the second one (row). The first guess can be represented as follow: [firstPlayerR[0],firstPlayerC[0]].
+* seawars.getGameHistory : Takes as input a websafegamekey and return the history of the guess made by each player from the beginning of the game. firstPlayerC is a list of number designate one of the two coordinate needed to hit a ship (Column) and firstPlayerR designate the second one (row). The first guess can be represented as follow: [firstPlayerR[0],firstPlayerC[0]].
 {
  "firstPlayerC": [""],
  "firstPlayerR": [""],
@@ -287,7 +287,7 @@ seawars.getGameHistory : Takes as input a websafegamekey and return the history 
  "secondPlayerC": [""],
 }
 
-seawars.getPlayersRanking : Takes no input and return a list of all the players with their own score. The ranking is a number going from 0 to 1000.
+* seawars.getPlayersRanking : Takes no input and return a list of all the players with their own score. The ranking is a number going from 0 to 1000.
 The rank is calculated as the winning percentage weighted by 0.9 and multiply by 1000 which is then divided by something close to the percentage of guess to win but weighted by the total number of ship box of the game.
 {
  "items": [
@@ -298,17 +298,17 @@ The rank is calculated as the winning percentage weighted by 0.9 and multiply by
 ],
 }
 
-seawars.guess : Takes as input the coordinates the active player wants to play. This coordinates are represented by a row and a column number. Return the evaluation of the attempt which is a string with value "Missed", "Hit", "Hit and sunk" or "Hit and sunk. You've won the game"
+* seawars.guess : Takes as input the coordinates the active player wants to play. This coordinates are represented by a row and a column number. Return the evaluation of the attempt which is a string with value "Missed", "Hit", "Hit and sunk" or "Hit and sunk. You've won the game"
 {
  "guessEval": "",
 }
 
-seawars.registerForGame : Takes as input a websafegamekey and append this key to the current user profile. Add one to the numberOfGame argument. Return True if successful, False otherwise.
+* seawars.registerForGame : Takes as input a websafegamekey and append this key to the current user profile. Add one to the numberOfGame argument. Return True if successful, False otherwise.
 {
  "data": Boolean,
 }
 
-seawars.cancelGame : Takes as input a websafegamekey and remove it in the current user profile. Add "Canceled" to the gameState argument Return True if successful, False otherwise.
+* seawars.cancelGame : Takes as input a websafegamekey and remove it in the current user profile. Add "Canceled" to the gameState argument Return True if successful, False otherwise.
 {
  "data": Boolean,
 }
