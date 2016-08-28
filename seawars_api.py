@@ -13,7 +13,7 @@ from google.appengine.api import taskqueue
 
 from exceptions_model import ConflictException
 
-from boolean_model import (
+from registration_model import (
     RegisteringForm,
 )
 
