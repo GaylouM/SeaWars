@@ -46,16 +46,6 @@ http://localhost:8080/_ah/api/explorer to start using the API.
 
 ## ENDPOINTS
 
-* seawars.getProfile : Return information about the current user
-{
- "ranking": "",
- "displayName": "",
- "mainEmail": "",
- "gameKeysToPlay": [""],
- "numberOfWonGames": "",
- "numberOfGame": "",
-}
-
 - getProfile
 	- Path: 'seawars/v2/getProfile'
 	- Method: GET
@@ -63,119 +53,76 @@ http://localhost:8080/_ah/api/explorer to start using the API.
 	- Returns: ProfileForm with current profile state.
 	- Description: Return information about the current user
 
-* seawars.getProfile : Change user displayName, commit it in the datastore and return updated informations about the him.
-{
- "ranking": "",
- "displayName": "",
- "mainEmail": "",
- "gameKeysToPlay": [""],
- "numberOfWonGames": "",
- "numberOfGame": "",
-}
+- saveProfile
+	- Path: 'seawars/v2/saveProfile'
+	- Method: POST
+	- Parameters: displayName
+	- Returns: ProfileForm with current profile state.
+	- Description: Change user displayName, commit it in the datastore and return updated informations about the him.
 
-* saveProfile
-** Path: 'seawars/v2/saveProfile'
-** Method: POST
-** Parameters: displayName
-** Returns: ProfileForm with current profile state.
-** Description: Change user displayName, commit it in the datastore and return updated informations about the him.
+- createTwoplayersGame
+	- Path: 'seawars/v2/newGame'
+	- Method: POST
+	- Parameters: boardSetup, boardSize
+	- Returns: GameForm with current game state.
+	- Description: Takes as input a board setup and a board size and add a game instance to the datastore with a set of ship for the first player. If no input data are provided default data are taken.
 
-* seawars.createTwoplayersGame : Takes as input a board setup and a board size and add a game instance to the datastore with a set of ship for the first player. If no input data are provided default data are taken.
-{
- "boardSetup": [""],
- "boardSize": "",
- "gameState": "",
- "numberOfPlayers": "",
- "creatorUserId": "",
-}
+- getGamesCreated
+	- Path: 'seawars/v2/gamesCreated'
+	- Method: GET
+	- Parameters: none
+	- Returns: GameForms with current game state.
+	- Description: Takes no input and return all the informations about all games created.
 
-*createTwoplayersGame
-**Path: 'seawars/v2/createGame'
-**Method: POST
-**Parameters: boardSetup, boardSize
-**Returns: GameForm with current game state.
-**Description: Takes as input a board setup and a board size and add a game instance to the datastore with a set of ship for the first player. If no input data are provided default data are taken.
+- getGame
+	- Path: 'seawars/v2/game/{websafeGameKey}'
+	- Method: GET
+	- Parameters: websafeGameKey
+	- Returns: GameForm with current game state.
+	- Description: Takes as input a websafegamekey and return all the informations about a game.
 
-* seawars.getGamesCreated : Takes no input and return a list of all the game created by the players. Usefull to register a game by getting the websafegamekey.
-{
- "items": [
-  {
-   "boardSize": "",
-   "creatorUserId": "",
-   "websafeKey": "",
-   "boardSetup": [""],
-   "gameState": "",
-   "numberOfPlayers": "",
-  },
-  ],
-}
+- getUserGames
+	- Path: 'seawars/v2/userGames'
+	- Method: GET
+	- Parameters: none
+	- Returns: GameForm with current user games state.
+	- Description: Takes no input and return all the informations about the user games.
 
-*createTwoplayersGame
-**Path: 'seawars/v2/createGame'
-**Method: POST
-**Parameters: boardSetup, boardSize
-**Returns: GameForm with current game state.
-**Description: Takes as input a board setup and a board size and add a game instance to the datastore with a set of ship for the first player. If no input data are provided default data are taken.
+- getGameHistory
+	- Path: 'seawars/v2/gameHistory/{websafeGameKey}'
+	- Method: GET
+	- Parameters: websafeGameKey
+	- Returns: GameForm with current game history.
+	- Description: Takes as input a websafegamekey and return the history of the guess made by each player from the beginning of the game. firstPlayerC is a list of number designate one of the two coordinate needed to hit a ship (Column) and firstPlayerR designate the second one (row). The first guess can be represented as follow: [firstPlayerR[0],firstPlayerC[0]].
 
-* seawars.getGame : Takes as input a websafegamekey and return all the informations about a game.
-{
- "boardSize": "",
- "creatorUserId": "",
- "websafeKey": "",
- "numberOfPlayers": "",
- "gameState": "",
- "creatorDisplayName": "",
- "boardSetup": [""],
-}
-
-* seawars.getUserGames : Takes no input and return a list of all the game created by the current user.
-{
- "items": [
-  {
-   "boardSize": "",
-   "creatorUserId": "",
-   "websafeKey": "",
-   "boardSetup": [""],
-   "gameState": "",
-   "numberOfPlayers": "",
-  },
- ],
-}
-
-* seawars.getGameHistory : Takes as input a websafegamekey and return the history of the guess made by each player from the beginning of the game. firstPlayerC is a list of number designate one of the two coordinate needed to hit a ship (Column) and firstPlayerR designate the second one (row). The first guess can be represented as follow: [firstPlayerR[0],firstPlayerC[0]].
-{
- "firstPlayerC": [""],
- "firstPlayerR": [""],
- "websafeKey": "ahFzfmJhdHRsZXNoaXAtMTM3NnIqCxIHUHJvZmlsZSIRY2VyZXN1c0BnbWFpbC5jb20MCxIER2FtZRjhgkgM",
- "secondPlayerR": [""],
- "secondPlayerC": [""],
-}
-
-* seawars.getPlayersRanking : Takes no input and return a list of all the players with their own score. The ranking is a number going from 0 to 1000.
+- getPlayersRanking
+	- Path: 'seawars/v2/playersRanking'
+	- Method: GET
+	- Parameters: no
+	- Returns: RankingForms with rank of all players.
+	- Description: Takes no input and return a list of all the players with their own score. The ranking is a number going from 0 to 1000.
 The rank is calculated as the winning percentage weighted by 0.9 and multiply by 1000 which is then divided by something close to the percentage of guess to win but weighted by the total number of ship box of the game.
-{
- "items": [
-  {
-   "ranking": "",
-   "displayName": "",
-  },
-],
-}
 
-* seawars.guess : Takes as input the coordinates the active player wants to play. This coordinates are represented by a row and a column number. Return the evaluation of the attempt which is a string with value "Missed", "Hit", "Hit and sunk" or "Hit and sunk. You've won the game"
-{
- "guessEval": "",
-}
+- guess
+	- Path: 'seawars/v2/game/{websafeGameKey}/guess'
+	- Method: PUT
+	- Parameters: websafeGameKey, Column, Row
+	- Returns: GuessEval with game state and history for both players.
+	- Description: Takes as input the coordinates the active player wants to play. This coordinates are represented by a row and a column number. Return the evaluation of the attempt which is a string with value "Missed", "Hit", "Hit and sunk" or "Hit and sunk. You've won the game"
 
-* seawars.registerForGame : Takes as input a websafegamekey and append this key to the current user profile. Add one to the numberOfGame argument. Return True if successful, False otherwise.
-{
- "data": Boolean,
-}
+- registerForGame
+	- Path: 'game/{websafeGameKey}/registration'
+	- Method: PUT
+	- Parameters: websafeGameKey
+	- Returns: RegisteringForm with confirmation of registration and activePlayerId.
+	- Description: Takes as input a websafegamekey and append this key to the current user profile. Add one to the numberOfGame argument. Return True if successful, False otherwise.
 
-* seawars.cancelGame : Takes as input a websafegamekey and remove it in the current user profile. Add "Canceled" to the gameState argument Return True if successful, False otherwise.
-{
- "data": Boolean,
-}
+- cancelGame
+	- Path: 'game/{websafeGameKey}/cancel'
+	- Method: PUT
+	- Parameters: websafeGameKey
+	- Returns: RegisteringForm with confirmation of cancelling.
+	- Description: Takes as input a websafegamekey and remove it in the current user profile. Add "Canceled" to the gameState argument Return True if successful, False otherwise.
 
 ## SCORE KEEPING
 
@@ -183,7 +130,7 @@ The profile object stores 4 useful datas; the number of played games, the number
 
 For each game the player wins or lose the game.
 If the player wins, +1 is added to the Profile.numberOfWonGames.
-This allows us to calculate a first simple ratio by dividing the Profile.numberOfWonGames by Profile.numberOfPlayedGames.
+This allows us to calculate a first simple ratio by dividing the Profile.numberOfWonGames by Profile.numberOfGames.
 This simple ranking can be improved if we consider the number of guess to victory for each games. Because each game can be set differently with a different amount of ship of different sizes, the number of guess to victory needs to be weighted by the number of ship boxes on the board.
 To do so we are dividing Profile.numberOfGuess by Profile.numberOfShipBox. The result can't be less than 1 as the number of guess can't be less than the number of ship box. If the ratio is equal to 1 the previous simple ranking is divided by 0,9, equal 2 it is divided by 1, superior or equal to 3 divided by 1.1. To get all the intermediate values we are using the fallowing expression; y = 0.1x + 0.8
 

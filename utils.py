@@ -10,12 +10,14 @@ import os
 import time
 import uuid
 
+from models import *
+
 from random import randint, shuffle
 from copy import deepcopy
 
 from google.appengine.api import urlfetch
 
-from game_model import Game
+from models.game_model import Game
 
 
 def getUserId(user, id_type="email"):

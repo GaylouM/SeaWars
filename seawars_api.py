@@ -8,12 +8,14 @@ classes they can include methods (such as 'to_form' and 'new_game').
 
 import endpoints
 
+from models import *
+
 from google.appengine.ext import ndb
 from google.appengine.api import taskqueue
 
 from exceptions_model import ConflictException
 
-from registration_model import (
+from models.registration_model import (
     RegisteringForm,
 )
 
@@ -29,13 +31,13 @@ from protorpc import (
     remote,
 )
 
-from user_model import (
+from models.user_model import (
     Profile,
     ProfileMiniForm,
     ProfileForm,
 )
 
-from game_model import (
+from models.game_model import (
     Game,
     GameForm,
     GameForms,
@@ -43,12 +45,12 @@ from game_model import (
     BoardForm,
 )
 
-from guess_model import (
+from models.guess_model import (
     Guess,
     GuessEval,
 )
 
-from ranking_model import (
+from models.ranking_model import (
     RankingForm,
     RankingForms,
 )
@@ -144,14 +146,16 @@ class SeaWars(remote.Service):
         for field in gh.all_fields():
             if field.name == "websafeKey":
                 setattr(gh, field.name, game.key.urlsafe())
-            elif field.name == "firstPlayerR":
-                setattr(gh, field.name, game.firstPlayer.rowHistory)
-            elif field.name == "firstPlayerC":
-                setattr(gh, field.name, game.firstPlayer.columnHistory)
-            elif field.name == "secondPlayerR":
-                setattr(gh, field.name, game.secondPlayer.rowHistory)
-            elif field.name == "secondPlayerC":
-                setattr(gh, field.name, game.secondPlayer.columnHistory)
+            elif field.name == "firstPlayerHistory":
+                setattr(gh, field.name, "%s" %
+                        zip(game.firstPlayer.rowHistory,
+                            game.firstPlayer.columnHistory,
+                            game.secondPlayer.stateOfGuessHistory))
+            elif field.name == "secondPlayerHistory":
+                setattr(gh, field.name, "%s" %
+                        zip(game.secondPlayer.rowHistory,
+                            game.secondPlayer.columnHistory,
+                            game.secondPlayer.stateOfGuessHistory))
         gh.check_initialized()
         return gh
 
@@ -173,7 +177,7 @@ class SeaWars(remote.Service):
                 key=p_key,
                 displayName=user.nickname(),
                 mainEmail=user.email(),
-                numberOfPlayedGames=0,
+                numberOfGames=0,
                 numberOfWonGames=0,
                 ranking=0,
             )
@@ -259,8 +263,8 @@ class SeaWars(remote.Service):
         g_key = ndb.Key(Game, g_id, parent=p_key)
 
         setattr(gf, 'creatorUserId', user_id)
-        setattr(prof, 'numberOfPlayedGames',
-                getattr(prof, 'numberOfPlayedGames') + 1)
+        setattr(prof, 'numberOfGames',
+                getattr(prof, 'numberOfGames') + 1)
         prof.gameKeysToPlay.append(g_key.urlsafe())
         prof.put()
 
@@ -333,7 +337,7 @@ class SeaWars(remote.Service):
 
             # register user
             prof.gameKeysToPlay.append(wsgk)
-            prof.numberOfPlayedGames += 1
+            prof.numberOfGames += 1
             game.gameState = "In Progress"
             game.numberOfPlayers += 1
             game.secondPlayer.displayName = prof.displayName
@@ -386,7 +390,7 @@ class SeaWars(remote.Service):
 
     def _switch(self, game):
         """Switch active player according to the game context"""
-        if getattr(game, 'activePlayerId') == game.secondPlayer.playerId:
+        if game.activePlayerId == game.secondPlayer.playerId:
             return setattr(game, 'activePlayerId', game.firstPlayer.playerId)
         else:
             return setattr(game, 'activePlayerId', game.secondPlayer.playerId)
@@ -409,14 +413,14 @@ class SeaWars(remote.Service):
             ships = game.secondPlayer.shipsCoordinates
             rcstrd_coord = [[ships[i], ships[i + 1]]
                             for i in range(len(ships)) if i % 2 == 0]
-            rcstrd_history = zip(
-                game.firstPlayer.rowHistory, game.firstPlayer.columnHistory)
+            rcstrd_history = zip(game.firstPlayer.rowHistory,
+                                 game.firstPlayer.columnHistory)
         else:
             ships = game.firstPlayer.shipsCoordinates
             rcstrd_coord = [[ships[i], ships[i + 1]]
                             for i in range(len(ships)) if i % 2 == 0]
-            rcstrd_history = zip(
-                game.secondPlayer.rowHistory, game.secondPlayer.columnHistory)
+            rcstrd_history = zip(game.secondPlayer.rowHistory,
+                                 game.secondPlayer.columnHistory)
 
         # A list is created following this example [5, 9, 12, 15, 17]
         # for the [5, 4, 3, 3, 2] board setup
@@ -431,12 +435,12 @@ class SeaWars(remote.Service):
                     if attempt in rcstrd_coord[
                         ship_set_cut[x]:ship_set_cut[x + 1]]]
 
-            if getattr(game, 'activePlayerId') == \
-               getattr(game.firstPlayer, 'playerId'):
+            if game.activePlayerId == \
+               game.firstPlayer.playerId:
                 if rslt:
                     # the name of each boat from 5 to 2 boxes can be retrieve
                     # in the TYPE_OF_BOATS dictionnary, for other size the name
-                    # has to be written the dict or a default name is affected
+                    # has to be written to the dict or a dflt name is affected
                     if str(board_setup[rslt[0]]) in TYPE_OF_BOATS:
                         class_ship = TYPE_OF_BOATS[str(board_setup[rslt[0]])]
                     else:
@@ -476,7 +480,7 @@ class SeaWars(remote.Service):
                                     numberOfShipBox)) / len(numberOfGuess)
                             prof.ranking = int(
                                 (prof.numberOfWonGames * 0.9 /
-                                 prof.numberOfPlayedGames) * 1000 /
+                                 prof.numberOfGames) * 1000 /
                                 ((div * 0.1 + 0.8) if 1 <= div <= 3 else 1.1))
                         # process if a boat is hit and sunk and its not the
                         # last of the adversary's board
@@ -543,7 +547,7 @@ class SeaWars(remote.Service):
                                 numberOfWonGames)
                             prof.ranking = int(
                                 (numberOfWonGames * 0.9 /
-                                 prof.numberOfPlayedGames) * 1000 /
+                                 prof.numberOfGames) * 1000 /
                                 ((div * 0.1 + 0.8) if 1 <= div <= 3 else 1.1))
                         else:
                             game.secondPlayer.stateOfGuessHistory.append(
@@ -580,12 +584,12 @@ class SeaWars(remote.Service):
         setattr(ge, 'gameState', game.gameState)
         setattr(ge, 'firstPlayerHistory', "%s" %
                 zip(game.firstPlayer.rowHistory,
-                    game.firstPlayer.columnHistory))
+                    game.firstPlayer.columnHistory,
+                    game.firstPlayer.stateOfGuessHistory))
         setattr(ge, 'secondPlayerHistory', "%s" %
                 zip(game.secondPlayer.rowHistory,
-                    game.secondPlayer.columnHistory))
-
-        zip(game.secondPlayer.rowHistory, game.secondPlayer.columnHistory)
+                    game.secondPlayer.columnHistory,
+                    game.secondPlayer.stateOfGuessHistory))
 
         prof.put()
         game.put()
@@ -593,7 +597,7 @@ class SeaWars(remote.Service):
         return ge
 
     @endpoints.method(message_types.VoidMessage, ProfileForm,
-                      path='profile', http_method='GET', name='getProfile')
+                      path='getProfile', http_method='GET', name='getProfile')
     def getProfile(self, request):
         """Return user profile."""
         # make sure user is authed
@@ -603,7 +607,7 @@ class SeaWars(remote.Service):
         return self._doProfile()
 
     @endpoints.method(ProfileMiniForm, ProfileForm,
-                      path='profile', http_method='POST',
+                      path='updateProfile', http_method='POST',
                       name='saveProfile')
     def saveProfile(self, request):
         """Update & return user profile."""
@@ -614,7 +618,7 @@ class SeaWars(remote.Service):
         return self._doProfile(request)
 
     @endpoints.method(BoardForm, GameForm,
-                      path='createGame', http_method='POST',
+                      path='newGame', http_method='POST',
                       name='createTwoplayersGame')
     def createTwoplayersGame(self, request):
         """Create a two player Game"""
@@ -625,7 +629,7 @@ class SeaWars(remote.Service):
         return self._createGameObject(request)
 
     @endpoints.method(message_types.VoidMessage, GameForms,
-                      path='getGamesCreated',
+                      path='gamesCreated',
                       http_method='GET', name='getGamesCreated')
     def getGamesCreated(self, request):
         """Return all games created."""
@@ -659,7 +663,7 @@ class SeaWars(remote.Service):
         return self._copyGameToForm(game, getattr(prof, 'displayName'))
 
     @endpoints.method(message_types.VoidMessage, GameForms,
-                      path='getUserGames',
+                      path='userGames',
                       http_method='GET', name='getUserGames')
     def getUserGames(self, request):
         """Return games created by user."""
@@ -693,7 +697,7 @@ class SeaWars(remote.Service):
         return self._copyGameHistoryToForm(game)
 
     @endpoints.method(message_types.VoidMessage, RankingForms,
-                      path='getPlayersRanking',
+                      path='playersRanking',
                       http_method='GET', name='getPlayersRanking')
     def getPlayersRanking(self, request):
         """Return the users ranking."""
@@ -726,19 +730,19 @@ class SeaWars(remote.Service):
             raise endpoints.NotFoundException(
                 'No game found with key: %s' % request.websafeGameKey)
         # the game must not have the completed status
-        if getattr(game, 'gameState') == "Completed":
+        if game.gameState == "Completed":
             raise ConflictException(
                 "This game is over")
         # the game must not have the cancelled status
-        if getattr(game, 'gameState') == "Cancelled":
+        if game.gameState == "Cancelled":
             raise ConflictException(
                 "This game has been cancelled by his creator")
         # it's impossible to play if there is only two players
-        if getattr(game, 'numberOfPlayers') < 2:
+        if game.numberOfPlayers < 2:
             raise ConflictException(
                 "Player 2 is missing, you can't play yet")
         # the player must not played if it's not his turn to play
-        if getattr(game, 'activePlayerId') != getattr(prof, 'mainEmail'):
+        if game.activePlayerId != prof.mainEmail:
             raise ConflictException(
                 "It seems it's not your turn to play")
         # You must not guess out of the board
@@ -750,7 +754,7 @@ class SeaWars(remote.Service):
         return self._guess(game, prof, board_setup, request)
 
     @endpoints.method(GAME_GET_REQUEST, RegisteringForm,
-                      path='game/{websafeGameKey}',
+                      path='game/{websafeGameKey}/registration',
                       http_method='PUT', name='registerForGame')
     def registerForGame(self, request):
         """Register user for selected game."""
@@ -764,7 +768,7 @@ class SeaWars(remote.Service):
         return self._gameRegistration(request, board_size, board_setup)
 
     @endpoints.method(GAME_GET_REQUEST, RegisteringForm,
-                      path='game/{websafeGameKey}',
+                      path='game/{websafeGameKey}/cancel',
                       http_method='PUT', name='cancelGame')
     def cancelGame(self, request):
         """Cancel the selected game."""
