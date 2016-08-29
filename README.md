@@ -56,12 +56,12 @@ http://localhost:8080/_ah/api/explorer to start using the API.
  "numberOfGame": "",
 }
 
-*getProfile
-**Path: 'seawars/v2/getProfile'
-**Method: GET
-**Parameters: none
-**Returns: ProfileForm with current profile state.
-**Description: Return information about the current user
+- getProfile
+Path: 'seawars/v2/getProfile'
+	- Method: GET
+	- Parameters: none
+	- Returns: ProfileForm with current profile state.
+	- Description: Return information about the current user
 
 * seawars.getProfile : Change user displayName, commit it in the datastore and return updated informations about the him.
 {
