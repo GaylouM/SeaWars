@@ -57,7 +57,7 @@ http://localhost:8080/_ah/api/explorer to start using the API.
 }
 
 - getProfile
-Path: 'seawars/v2/getProfile'
+	- Path: 'seawars/v2/getProfile'
 	- Method: GET
 	- Parameters: none
 	- Returns: ProfileForm with current profile state.
