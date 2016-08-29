@@ -56,7 +56,14 @@ http://localhost:8080/_ah/api/explorer to start using the API.
  "numberOfGame": "",
 }
 
-* seawars.getProfile : Change user display, commit it in the datastore and return updated informations about the current user
+*getProfile
+**Path: 'seawars/v2/getProfile'
+**Method: GET
+**Parameters: none
+**Returns: ProfileForm with current profile state.
+**Description: Return information about the current user
+
+* seawars.getProfile : Change user displayName, commit it in the datastore and return updated informations about the him.
 {
  "ranking": "",
  "displayName": "",
@@ -66,6 +73,13 @@ http://localhost:8080/_ah/api/explorer to start using the API.
  "numberOfGame": "",
 }
 
+*saveProfile
+**Path: 'seawars/v2/saveProfile'
+**Method: POST
+**Parameters: displayName
+**Returns: ProfileForm with current profile state.
+**Description: Change user displayName, commit it in the datastore and return updated informations about the him.
+
 * seawars.createTwoplayersGame : Takes as input a board setup and a board size and add a game instance to the datastore with a set of ship for the first player. If no input data are provided default data are taken.
 {
  "boardSetup": [""],
@@ -74,6 +88,13 @@ http://localhost:8080/_ah/api/explorer to start using the API.
  "numberOfPlayers": "",
  "creatorUserId": "",
 }
+
+*createTwoplayersGame
+**Path: 'seawars/v2/createGame'
+**Method: POST
+**Parameters: boardSetup, boardSize
+**Returns: GameForm with current game state.
+**Description: Takes as input a board setup and a board size and add a game instance to the datastore with a set of ship for the first player. If no input data are provided default data are taken.
 
 * seawars.getGamesCreated : Takes no input and return a list of all the game created by the players. Usefull to register a game by getting the websafegamekey.
 {
@@ -88,6 +109,13 @@ http://localhost:8080/_ah/api/explorer to start using the API.
   },
   ],
 }
+
+*createTwoplayersGame
+**Path: 'seawars/v2/createGame'
+**Method: POST
+**Parameters: boardSetup, boardSize
+**Returns: GameForm with current game state.
+**Description: Takes as input a board setup and a board size and add a game instance to the datastore with a set of ship for the first player. If no input data are provided default data are taken.
 
 * seawars.getGame : Takes as input a websafegamekey and return all the informations about a game.
 {

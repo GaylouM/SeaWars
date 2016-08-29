@@ -386,7 +386,7 @@ class SeaWars(remote.Service):
 
     def _switch(self, game):
         """Switch active player according to the game context"""
-        if getattr(game, 'activePlayerId') == game.secondPlayer.playerId:
+        if game.activePlayerId == game.secondPlayer.playerId:
             return setattr(game, 'activePlayerId', game.firstPlayer.playerId)
         else:
             return setattr(game, 'activePlayerId', game.secondPlayer.playerId)
@@ -431,8 +431,7 @@ class SeaWars(remote.Service):
                     if attempt in rcstrd_coord[
                         ship_set_cut[x]:ship_set_cut[x + 1]]]
 
-            if getattr(game, 'activePlayerId') == \
-               getattr(game.firstPlayer, 'playerId'):
+            if game.activePlayerId == game.firstPlayer.playerId:
                 if rslt:
                     # the name of each boat from 5 to 2 boxes can be retrieve
                     # in the TYPE_OF_BOATS dictionnary, for other size the name
@@ -593,7 +592,7 @@ class SeaWars(remote.Service):
         return ge
 
     @endpoints.method(message_types.VoidMessage, ProfileForm,
-                      path='profile', http_method='GET', name='getProfile')
+                      path='getProfile', http_method='GET', name='getProfile')
     def getProfile(self, request):
         """Return user profile."""
         # make sure user is authed
@@ -603,7 +602,7 @@ class SeaWars(remote.Service):
         return self._doProfile()
 
     @endpoints.method(ProfileMiniForm, ProfileForm,
-                      path='profile', http_method='POST',
+                      path='saveProfile', http_method='POST',
                       name='saveProfile')
     def saveProfile(self, request):
         """Update & return user profile."""
@@ -726,19 +725,19 @@ class SeaWars(remote.Service):
             raise endpoints.NotFoundException(
                 'No game found with key: %s' % request.websafeGameKey)
         # the game must not have the completed status
-        if getattr(game, 'gameState') == "Completed":
+        if game.gameState == "Completed":
             raise ConflictException(
                 "This game is over")
         # the game must not have the cancelled status
-        if getattr(game, 'gameState') == "Cancelled":
+        if game.gameState == "Cancelled":
             raise ConflictException(
                 "This game has been cancelled by his creator")
         # it's impossible to play if there is only two players
-        if getattr(game, 'numberOfPlayers') < 2:
+        if game.numberOfPlayers < 2:
             raise ConflictException(
                 "Player 2 is missing, you can't play yet")
         # the player must not played if it's not his turn to play
-        if getattr(game, 'activePlayerId') != getattr(prof, 'mainEmail'):
+        if game.activePlayerId != prof.mainEmail:
             raise ConflictException(
                 "It seems it's not your turn to play")
         # You must not guess out of the board
