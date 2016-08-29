@@ -73,12 +73,12 @@ http://localhost:8080/_ah/api/explorer to start using the API.
  "numberOfGame": "",
 }
 
-*saveProfile
-**Path: 'seawars/v2/saveProfile'
-**Method: POST
-**Parameters: displayName
-**Returns: ProfileForm with current profile state.
-**Description: Change user displayName, commit it in the datastore and return updated informations about the him.
+* saveProfile
+** Path: 'seawars/v2/saveProfile'
+** Method: POST
+** Parameters: displayName
+** Returns: ProfileForm with current profile state.
+** Description: Change user displayName, commit it in the datastore and return updated informations about the him.
 
 * seawars.createTwoplayersGame : Takes as input a board setup and a board size and add a game instance to the datastore with a set of ship for the first player. If no input data are provided default data are taken.
 {
