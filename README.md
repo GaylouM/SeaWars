@@ -1,4 +1,4 @@
-RESTful web API with Node.js Framework
+SEAWARS
 1.0 3/28/2018
 
 HOW TO PLAY
